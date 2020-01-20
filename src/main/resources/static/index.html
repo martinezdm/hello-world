@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>React Local</title>
+  <script type="application/javascript" src="https://unpkg.com/react@16.3.0/umd/react.production.min.js"></script>
+  <script type="application/javascript" src="https://unpkg.com/react-dom@16.3.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.14.0/babel.min.js"></script>
+  <!-- script type="application/javascript" src="https://unpkg.com/@babel/standalone@7.7.7/babel.min.js"></script -->
+  
+</head>
+
+<body>
+  <div id="rc"></div>
+<script type="text/babel" data-presets='es2015,react'>
+
+class RC extends React.Component {
+  constructor(props) {
+    super(props);
+    //this.state = { devices: [{id: 1, p_on: false, p_vol: 0, name: 'kitchenN'},{id: 2, p_on: false, p_vol: 0, name: 'roomN'},{id: 3, p_on: false, p_vol: 0, name: 'bathN'}] };
+	//this.state = { devices: { 1: {id: 1, status: false, vol: 0, name: 'kitchenN'}, 2: {id: 2, status: false, vol: 0, name: 'roomN'}, 3: {id: 3, status: false, vol: 0, name: 'bathN'}} };
+    this.state = { devices: { }, buttons: {} };
+    this.volDown = this.volDown.bind(this);
+    this.volUp = this.volUp.bind(this);
+    this.onOff = this.onOff.bind(this);
+    this.undo = this.undo.bind(this);
+    this.cmd = this.cmd.bind(this);
+    this.createButton = this.createButton.bind(this);
+    this.commonDevice = this.commonDevice.bind(this);
+    this.listDevices1 = React.createRef();
+  }
+  async componentDidMount() {
+      {
+        const response = await fetch(`/device/map`);
+        const json = await response.json();
+        this.setState({ devices: json });
+      }
+      {
+        const response = await fetch(`/button/map`);
+        const json = await response.json();
+        this.setState({ buttons: json });
+        }    
+    //this.setState( { devices: { 1: {id: 1, status: false, vol: 0, name: 'kitchenN2'}, 2: {id: 2, status: false, vol: 0, name: 'roomN2'}, 3: {id: 3, status: false, vol: 0, name: 'bathN2'}} } );
+  }
+  
+  render() {
+    return (<div>
+      <div>
+        <h3>Remote Control</h3>
+	<ListDevices devices={this.state.devices} ref={this.listDevices1}/>
+	<button onClick={this.onOff}>On/Off</button>&nbsp;
+        <button onClick={this.volUp}>VolUp</button>&nbsp;
+	<button onClick={this.volDown}>VolDown</button>&nbsp;
+        <button onClick={this.undo}>Undo</button>
+      </div><br/>
+              <CreationButton createButton={this.createButton}/>
+      <br/>
+      <div>
+            {Object.entries(this.state.buttons).map(item => (
+            <div>
+                <button onClick={()=>this.cmd(item[1].cmd)}>{item[1].id} - {item[1].cmd}</button>
+            </div>
+            ))}
+      </div>
+    </div>);
+  }
+
+  async commonDevice(url){
+        const response = await fetch(url);
+	const json = await response.json();
+	const devices = this.state.devices;
+	devices[json['id']] = json;
+	this.setState({ devices: devices, });
+  }
+  async onOff(){
+      await this.commonDevice(`/device/switch?device_id=${this.listDevices1.current.state.selected_id}`);
+  }
+  async undo(){
+	await this.commonDevice(`/device/undo?device_id=${this.listDevices1.current.state.selected_id}`);
+  }
+  async volUp(){
+	await this.commonDevice(`/device/volup?device_id=${this.listDevices1.current.state.selected_id}`);
+  }
+  async volDown(){
+	await this.commonDevice(`/device/voldown?device_id=${this.listDevices1.current.state.selected_id}`);
+  }
+  async cmd(cmd){
+	await this.commonDevice(`/device/cmd?device_id=${this.listDevices1.current.state.selected_id}&cmd=${cmd}`);
+  }
+  async createButton(cmd){
+      const response = await fetch(`/button/create?cmd=${cmd}`);
+	const json = await response.json();
+	const buttons = this.state.buttons;
+	buttons[json['id']] = json;
+	this.setState({ buttons: buttons, });
+  }
+}
+
+class CreationButton extends React.Component {
+  constructor(props) {
+    super(props);
+	this.state = { text: '' };
+	this.handleChange = this.handleChange.bind(this);
+  }
+  render() {
+    return (<div>
+            <button onClick={() => this.props.createButton(this.state.text)}>Create Button</button>
+            <input
+                onChange={this.handleChange}
+                value={this.state.text}/>
+	  </div>
+    );
+  }
+  handleChange(e) {
+    this.setState({ text: e.target.value });
+  }
+}
+
+class ListDevices extends React.Component {
+  constructor(props) {
+    super(props);
+	this.state = { selected_id: 1 };
+	this.handleOptionChange = this.handleOptionChange.bind(this);
+  }
+  render() {
+    return ( <div><table>
+	  <tr><td></td><td>id</td><td>name</td><td>status</td><td>vol</td><td>cmd</td></tr>
+	  {Object.entries(this.props.devices).map(item => (<tr>
+	  <td>
+            <input type="radio" value="option{item[1].id}"
+                checked={item[1].id == this.state.selected_id} 
+                onChange={() => this.handleOptionChange(item[1].id)} /></td>
+            <td>{item[1].id}</td><td>{item[1].name}</td><td>{item[1].status ? 'On' : 'Off'}</td><td>{item[1].vol}</td><td>{item[1].cmd}</td>
+          </tr>
+        ))}
+	</table></div>
+    );
+  }
+  handleOptionChange(device_id) {
+   this.setState(state => ({ selected_id: device_id }));
+  }
+}
+ReactDOM.render(
+  <RC />,
+  document.getElementById('rc')
+);
+
+</script>
+
+</body>
+
+</html>

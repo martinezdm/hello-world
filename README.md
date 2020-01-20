@@ -27,7 +27,7 @@
 
     ./mvnw clean install -DskipTests
 
-будет создан исполняемый
+будет создан исполняемый файл
 
     ./target/demo-0.0.1-SNAPSHOT.jar
 

@@ -27,15 +27,13 @@
 
     ./mvnw clean install -DskipTests
 
-будет создан исполняемый файл
-
-    ./target/demo-0.0.1-SNAPSHOT.jar
+будет создан исполняемый файл `./target/demo-0.0.1-SNAPSHOT.jar`
 
 ## Перед тестами и запуском
 
 Требуется пустая база данных postgresql, при первом запуске будут созданы и заполнены таблицы.
 
-Следует указать доступ к базе, например
+Следует указать доступ к базе, например:
 
     export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost/db"
     export SPRING_DATASOURCE_USERNAME="user"

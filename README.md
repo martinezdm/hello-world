@@ -8,7 +8,11 @@
 
 ### Управление из web
 При запуске программы поднимается встроенный web-сервер, единственная страница доступна по адресу http://localhost:8080/
-Устройства со своими значениями показаны таблицей, ниже пульт с постоянными кнопками, форма добавления дополнительных кнопок с произвольными коммандами, и список дополнительных кнопок.
+Блоки на странице
+* Устройства со своими значениями показаны таблицей
+* Пульт с постоянными кнопками
+* Форма добавления дополнительных кнопок с произвольными коммандами
+* Список дополнительных кнопок
 
 ### Управление из командной строки
 При запуске программы одновременно становится доступна командная строка, help покажет все доступные команды, можно выполнить все те же действия что и в web.
@@ -17,15 +21,15 @@
 
 Загрузка
 
-git clone https://github.com/martinezdm/hello-world
+    git clone https://github.com/martinezdm/hello-world
 
 Создание исполняемого файла
 
-./mvnw clean install -DskipTests
+    ./mvnw clean install -DskipTests
 
 будет создан исполняемый
 
-./target/demo-0.0.1-SNAPSHOT.jar
+    ./target/demo-0.0.1-SNAPSHOT.jar
 
 ## Перед тестами и запуском
 
@@ -33,19 +37,17 @@ git clone https://github.com/martinezdm/hello-world
 
 Следует указать доступ к базе, например
 
-export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost/db"
-
-export SPRING_DATASOURCE_USERNAME="user"
-
-export SPRING_DATASOURCE_PASSWORD="pass"
+    export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost/db"
+    export SPRING_DATASOURCE_USERNAME="user"
+    export SPRING_DATASOURCE_PASSWORD="pass"
 
 ## Тесты
 
-./mvnw test
+    ./mvnw test
 
 ## Запуск
 
 запустить web-сервер и командную строку одновременно
 
-./target/demo-0.0.1-SNAPSHOT.jar
+    ./target/demo-0.0.1-SNAPSHOT.jar
 
